@@ -1,4 +1,4 @@
-function [RGBcropimg,imgcrop2] = PreClearBorderEye(imgcrop,RGBcropimg,idx)
+function [RGBcropimg,imgcrop2] = PreClearBorderEye(imgcrop,RGBcropimg,idx,imgid)
 
 imgcrop2 = bwareaopen(imgcrop,200);
 
@@ -50,12 +50,12 @@ for k = length(bpixelcol_bottom):-1:1
     end
 end
 
-filename = ['C:\Users\job_preedanan\Desktop\Gornio\1\221\cropImgBW\figure_' num2str(idx) '.jpg'];
-figure(1),subplot(1,4,1),imshow(RGBcropimg);
-figure(1),subplot(1,4,2),imshow(imgcrop2);
-figure(1),subplot(1,4,3),plot(bpixelcol_top);
-figure(1),subplot(1,4,4),plot(bpixelcol_bottom);
-saveas(figure(1),filename)
+% filename = ['C:\Users\Lenovo\Documents\MATLAB\EyeProject\EyesData\' imgid '\cropImgBW\figure_' num2str(idx) '.jpg'];
+% figure(1),subplot(2,2,1),imshow(RGBcropimg);
+% figure(1),subplot(2,2,2),imshow(imgcrop2);
+% figure(1),subplot(2,2,3),plot(bpixelcol_top);
+% figure(1),subplot(2,2,4),plot(bpixelcol_bottom);
+% saveas(figure(1),filename)
 
 
 
