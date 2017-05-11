@@ -73,7 +73,7 @@ for idx = startidx:lastidx
         end
         
         %crop
-        RGBcropimg = img(centerROI_Y-round(H_crop/2):centerROI_Y+round(H_crop/2),centerROI_X-70:centerROI_X+70,:);      % manually change boundary size here
+        RGBcropimg = img(round(centerROI_Y-(H_crop/2)):round(centerROI_Y+(H_crop/2)),centerROI_X-70:centerROI_X+70,:);      % manually change boundary size here
         
         %check is RGBcropimg processed in black eye ?
         BlackEye = CheckBlackEye2(RGBcropimg,idxname,eyeside,startidx,lastidx,BlackEye);
