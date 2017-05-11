@@ -1,13 +1,25 @@
-function GapAreaPlot(area,lengthdata,imgid)
+function GapAreaPlot(area,imgid,StartAreaIdx,startidx,lastidx)
+global baseName
 
-for i = length(area):-1:length(area) - lengthdata
-    if area(i) < 20
-        startidx = i;
-        lastidx = length(area);
-        break;
+% interpolation
+for i = 1:lastidx - StartAreaIdx +1
+    if (i > 3) && (i < lastidx - StartAreaIdx +1) && (area(i) < area(i-1) + 300)
+        area(i) = (area(i+1) + area(i-1)) /2;
+    elseif (i == lastidx - StartAreaIdx +1) && (area(i) < area(i-1) + 300)
+        area(i) = area(i-1);
     end
 
 end
 
-titlename = ['Gap area of ' imgid ' from ' num2str(startidx) ' to ' num2str(lastidx)];
-plot(startidx:lastidx,area(startidx:lastidx)),title(titlename),xlabel('Image ID'),ylabel('Area (pixels)');
+% remove false gap region
+for i = lastidx - StartAreaIdx +1:-1:1
+    if (area(i) < 500) && (area(i) + 500 < area(i+1))
+        area(1:i-1) = 0;
+        break;
+    end
+end
+
+titlename = ['Gap area of ' imgid ' from ' num2str(StartAreaIdx) ' to ' num2str(lastidx)];
+figure(2),plot(area),title(titlename),xlabel('Image ID'),ylabel('Area (pixels)');
+filename = [baseName  '\FullROI\' num2str(startidx) '-' num2str(lastidx) '\GapArea-' imgid '=' num2str(StartAreaIdx) '-' num2str(lastidx)  '.jpg'];
+saveas(figure(2),filename)

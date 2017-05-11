@@ -1,6 +1,6 @@
 function [RGBcropimg,imgcrop2] = PreClearBorderEye(imgcrop,RGBcropimg,idx,imgid)
 
-imgcrop2 = bwareaopen(imgcrop,200);
+imgcrop2 = bwareaopen(imgcrop,250);
 
 %------------------------------TOP------------------------------------------
 %histogram of top image column
