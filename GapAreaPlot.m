@@ -13,9 +13,16 @@ end
 
 % remove false gap region
 for i = lastidx - StartAreaIdx +1:-1:1
-    if (area(i) < 500) && (area(i) + 500 < area(i+1))
-        area(1:i-1) = 0;
-        break;
+    if (i == lastidx - StartAreaIdx +1)
+        if (area(i) < 150) 
+            area(1:i) = 0;
+            break;
+        end    
+    else
+        if (area(i) < 150) || (area(i) + 1000 < area(i+1))
+            area(1:i) = 0;
+            break;
+        end
     end
 end
 
