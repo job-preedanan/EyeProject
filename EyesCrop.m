@@ -4,9 +4,10 @@ function EyesCrop(imgid,startidx,lastidx,eyeside)
 % lastidx = last index
 % eyeside - 0 : left    - 1 : right
 % result = croped RGB img save in 'cropImg' folder in that ID folder
+
 close;
 clc;
-manualTh = 0.2;    % 0 - Otsu threshold ,otherwise use manual threshold (0-1) in case of very dark image
+manualTh = 0;    % 0 - Otsu threshold ,otherwise use manual threshold (0-1) in case of very dark image
 imgid = num2str(imgid);
 global baseName
 baseName = ['C:\Users\Lenovo\Documents\MATLAB\EyeProject\EyesData\' imgid ];     %change path name
@@ -31,6 +32,7 @@ mkdir(baseName,foldername4);
 numseq =0;
 areaSeq = 0;
 BlackEye = 0;
+area =[];
 for idx = startidx:lastidx
     if idx <= 9
         idxname = [imgid eye '0000' num2str(idx)];
@@ -76,7 +78,7 @@ for idx = startidx:lastidx
         RGBcropimg = img(round(centerROI_Y-(H_crop/2)):round(centerROI_Y+(H_crop/2)),centerROI_X-70:centerROI_X+70,:);      % manually change boundary size here
         
         %check is RGBcropimg processed in black eye ?
-        BlackEye = CheckBlackEye2(RGBcropimg,idxname,eyeside,startidx,lastidx,BlackEye);
+        [OrangeArea,TotalArea,BlackEye] = CheckBlackEye2(RGBcropimg,idxname,eyeside,startidx,lastidx,BlackEye);
         
         %BlackEye = 1;                    %temp || remove if you want to process below
         
@@ -92,7 +94,11 @@ for idx = startidx:lastidx
             % bw img
             gcropimg = rgb2gray(RGBcropimg);                   
             if manualTh == 0        %Otsu
-                level = graythresh(gcropimg);
+                if numseq < 20
+                    level = 0.3;
+                else
+                    level = graythresh(gcropimg) - 0.25;
+                end
             else
                 level = manualTh;
             end
@@ -100,7 +106,7 @@ for idx = startidx:lastidx
             
             % Pre-clearborder Fcn
             [RGBcropimg,bwcropimg] = PreClearBorderEye(bwcropimg,RGBcropimg,idx,imgid);   
-
+            figure(4),imshow(bwcropimg);
             bwcropimg(1,:) = 255;
             bwcropimg(size(bwcropimg,1),:) = 255;
 
@@ -110,7 +116,7 @@ for idx = startidx:lastidx
             linecropimg = edge(bwcropimg2,'Canny');
             %bwcropimg2 = imcomplement(bwcropimg2);
 
-            area(areaSeq) = length(find(bwcropimg2 == 1));     % count white pixel
+            area(areaSeq) = length(find(bwcropimg2 == 1));     % count white pixel         
 
             % merge ROI to full RGB img
             FullROI = img;
@@ -125,8 +131,8 @@ for idx = startidx:lastidx
                         FullROI(round(centerROI_Y-(H_crop/2)+i),round(centerROI_X-70+j),3) = 0;
                     end
                 end
-            end
-
+            end         
+            
             savenameRGB = [baseName '\CropRGB\' num2str(startidx) '-' num2str(lastidx) '\cropRGBimage-' idxname '.jpg'];           
             savenameBW = [baseName '\CropBW\' num2str(startidx) '-' num2str(lastidx) '\cropBW-image-' idxname '.jpg'];
             savenameROI = [baseName '\FullROI\' num2str(startidx) '-' num2str(lastidx) '\fullROI-image-' idxname '.jpg'];
@@ -134,14 +140,33 @@ for idx = startidx:lastidx
             imwrite(bwcropimg2,savenameBW);
             imwrite(FullROI,savenameROI);
             
-
         end
+        
+        result(numseq,1) = idx;        
+        result(numseq,2) = OrangeArea;  
+        result(numseq,3) = TotalArea;  
+        %result(numseq,4) = area;  
+    
     end
 end
 
 if isempty(area) == 0
-    GapAreaPlot(area,imgid,StartAreaIdx,startidx,lastidx);
+    area = GapAreaPlot(area,imgid,StartAreaIdx,startidx,lastidx);  
 end
+
+n=0;
+for j = size(area,2):-1:1
+    result(size(result,1)-n,4) = round(area(1,j)); 
+    n=n+1;
+end
+
+% save txt 
+fid = fopen([ baseName '\result_' num2str(startidx) '-' num2str(lastidx) '.txt'],'wt');
+for i = 1:size(result,1)
+    fprintf(fid,'%g\t',result(i,:));
+    fprintf(fid,'\n');
+end
+fclose(fid);
 
 
 

@@ -1,5 +1,6 @@
 function [RGBcropimg,imgcrop2] = PreClearBorderEye(imgcrop,RGBcropimg,idx,imgid)
-
+% SE = strel('square', 5);
+% imgcrop2 = imdilate(imgcrop,SE);
 imgcrop2 = bwareaopen(imgcrop,250);
 
 %------------------------------TOP------------------------------------------

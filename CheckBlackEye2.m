@@ -1,8 +1,8 @@
-function BlackEye = CheckBlackEye2(CropRGB,idxname,eye,startidx,lastidx,BlackEye)
+function [OrangeArea,TotalArea,BlackEye] = CheckBlackEye2(CropRGB,idxname,eye,startidx,lastidx,BlackEye)
 global baseName;
 %% find black region using for subtracting orange region (reducing dark orange region)
 Bcrop=rgb2gray(CropRGB);
-level = 0.2;    %change here
+level = 0.3;    %change here
 Bcrop=im2bw(Bcrop,level);
 Bcrop = imcomplement(Bcrop);
 BlackContour=bwconncomp(Bcrop);
@@ -53,7 +53,7 @@ end
 Ocrop1 = HueSegmentation(CropRGB,'orange');    %Hue segmentation
 Ocrop = Ocrop1 - Bcrop;%add
 Ocrop( Ocrop < 0) = 0;
-Ocrop = bwareaopen(Ocrop,150);
+Ocrop = bwareaopen(Ocrop,100);
 % figure(2),subplot(1,4,1),imshow(Bcrop);
 % figure(2),subplot(1,4,2),imshow(Ocrop1);
 % figure(2),subplot(1,4,3),imshow(Ocrop);
@@ -62,7 +62,8 @@ OrangeContour=bwconncomp(Ocrop);
 propOrange  = regionprops(OrangeContour,'Area','PixelList','Centroid');
 
 if eye == 0  %left eye : Black --Orange -- White
-    %find left orange region
+%     Ocrop(:,round(size(Ocrop,2)/2):end) = 0;
+%     %find left orange region
     OrangeLeftCen = propOrange(1).Centroid(1,1);
     for n = 1:OrangeContour.NumObjects                         %find min centroid
         OrangeLeftTemp = propOrange(n).Centroid(1,1);
@@ -72,7 +73,7 @@ if eye == 0  %left eye : Black --Orange -- White
     end    
     %remove region not centroid region
     for i = 1:OrangeContour.NumObjects
-        if propOrange(i).Centroid ~= OrangeLeftCen  
+        if abs(propOrange(i).Centroid(1,1) - OrangeLeftCen) > 20
             for a = 1:size(propOrange(i).PixelList,1)
                 x = propOrange(i).PixelList(a,2);    %x
                 y = propOrange(i).PixelList(a,1);    %y
@@ -81,8 +82,7 @@ if eye == 0  %left eye : Black --Orange -- White
         end   
     end
 elseif eye == 1  %right eye : White --Orange -- Black
-    %find right orange region 
-        
+    %find right orange region   
     OrangeRightCen = propOrange(1).Centroid(1,1);
     for n = 1:OrangeContour.NumObjects                         %find max centroid
         OrangeRightTemp = propOrange(n).Centroid(1,1);
@@ -92,7 +92,7 @@ elseif eye == 1  %right eye : White --Orange -- Black
     end 
     %remove region not centroid region
     for i = 1:OrangeContour.NumObjects
-        if propOrange(i).Centroid ~= OrangeRightCen   
+        if abs(propOrange(i).Centroid(1,1) - OrangeRightCen) > 20                      %~= OrangeRightCen   
             for a = 1:size(propOrange(i).PixelList,1)
                 x = propOrange(i).PixelList(a,2);    %x
                 y = propOrange(i).PixelList(a,1);    %y

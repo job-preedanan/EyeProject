@@ -1,4 +1,4 @@
-function GapAreaPlot(area,imgid,StartAreaIdx,startidx,lastidx)
+function area = GapAreaPlot(area,imgid,StartAreaIdx,startidx,lastidx)
 global baseName
 
 % interpolation
